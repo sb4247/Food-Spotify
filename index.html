@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {
+          background-image: url("PIC2.JPEG");
+          background-size: 100%;
+          background-attachment:revert;
+          background-repeat:repeat;
+          overflow-x: hidden;
+        }
+        img{
+            width: 5%;
+            height: 5%;
+        }
+        html * {
+        font-size: 25px;
+        line-height: 1;
+        color:  blueviolet;
+        
+        font-family: Cera Pro, sans-serif;
+        scrollbar-highlight-color: aquamarine
+        }
+        h2{
+            color: palevioletred
+        }
+        input{
+            color: rgb(216, 204, 216);
+            background-color: rgb(42, 18, 39);
+            border: 1px solid aquamarine;
+            border-radius: 5px;
+            font-size: 20px;
+        }
+        h3{
+            font-size: 12px;
+            color: whitesmoke
+        }
+        h4{
+            width: 500%;
+            height: 500%;
+        }
+        h5{
+            font-size: 15px;
+            color: whitesmoke
+        }
+        h6{
+            font-size: 15px;
+            color: whitesmoke
+        }
+        #songList{ 
+            max-height: 350px;
+            overflow-y: scroll;
+            text-align: center;
+            background-attachment: scroll;
+
+            
+
+        }
+        #PlaylistDescription{
+            font-size: 18px;
+            color: greenyellow
+
+        }
+        #randomSong{
+            width: 450%;
+            height: 450%;
+            font-size: 20px;
+            color: peru;
+            font-family: Cera Pro, sans-serif;
+        }
+        #randomsonginfo{
+            width: 250%;
+            height: 250%;
+            text-shadow: 0in;
+            font-size: 18px;
+            color: greenyellow;
+            background-blend-mode: luminosity;
+
+        }
+        
+
+
+    </style>
+    <title>Spotify Authentication</title>
+    
+</head>
+<body>
+    <h1>Link your Spotify Account</h1>
+    <img src="logo.png" alt="Spotify Logo">
+    <img src="collab.png" alt="Collab Logo" width="30" height="30">
+    <img src="cook.png" alt="Cooking Logo">
+    <h2>To access specially curated playlists we've cooked up just for you!</h2>
+</body>
+
+
+<body onload="pageStatus()">
+
+    <div class="container">
+        <div id="tokenSection" class = "row">
+            <div class="col">
+                <input class = "btn btn-primary" type="button"  value = "Request Authorization" onclick="authorizationRequest()"> 
+                <h3 id="auth"></h3>
+                <div><br/></div>
+
+                <h4 id="artwork"></h4>
+                <h5 id="foodsong"></h5>
+    </div>
+    </div>
+    </div>
+
+     
+
+    <div id="device" class = "row">
+        <div class="col">
+            <lable for="device"></lable>
+            </select>
+            <h6 id="preview">There's a lot in store!</h6>
+            <h5 id="foodsong"></h5>
+            <input class = "btn btn-primary" type="button"  value = "Dinner-Date-Night" onclick="playlistRequest(1)"> <br/> 
+            <input class = "btn btn-primary" type="button"  value = "Feel Good Dinner" onclick="playlistRequest(2)"> <br/>
+            <input class = "btn btn-primary" type="button"  value = "Brunch Playlist" onclick="playlistRequest(3)"> <br/>
+            <div><br/></div>
+            <div id="PlaylistDescription"></div>
+            <div id="songList" class = "row"><div class="col"><lable for="songList"></lable></div></div>
+            <div><br/></div>
+
+
+            <div id="randomSong"> Wish to take things up a notch? <br></div>
+            <input class = "btn btn-primary" type="button"  value = "Random Food Song!" onclick="randomSongGenerator()"> <br/>
+            <div><br/></div>
+            <div id="randomsonginfo"></div>
+            <input class = "btn btn-primary" type="button"  value = "Give it a listen!" onclick="playRandomSong()"> <br/>
+
+             
+
+        </div>
+    </div>
+
+    <!-- <div id="songList" class = "row"><div class="col"><lable for="songList"></lable></div></div> -->
+
+
+
+
+
+</body>
+<script type = "text/javascript">
+    let songpreview = " "
+    let redirect = encodeURI("http://localhost:3000/index.html");
+
+    function pageStatus(){
+        let client_id = "45b3270af0514c4097608acd28fd37d4"
+        let client_secret = "7f7976df1afb488588764e6162e97554"
+
+        // if(window.location.search.length > 0){
+        //     let url = window.location.href
+        //     let urlParams = new URLSearchParams(url)
+        //     let newcode = urlParams.get("code")
+        //     getToken(newcode)
+            
+
+    
+        // } 
+        if(localStorage.getItem("access_token") != null){
+            //add check image to auth div
+            document.getElementById("auth").innerHTML = "Status : You have successfully connected to the CS-375 APP!"
+
+            //add Dinner-Date-Night image to artwork id
+            document.getElementById("artwork").innerHTML = "<img src='Dinner-Date.jpeg' alt='Dinner-Date-Night'>" + "  "
+
+            //add Feel Good Dinner image to artwork id
+            document.getElementById("artwork").innerHTML += "<img src='Feel-Good.jpeg' alt='Feel Good Dinner'>" + "  "
+
+            //add Brunch Playlist image to artwork id
+            document.getElementById("artwork").innerHTML += "<img src='Brunch.jpeg' alt='Brunch Playlist'>" + "  " + "<br/>"
+
+            document.getElementById("foodsong").innerHTML = "Select either of these options to learn more about songs that can blend right in with your meal!"
+
+            document.getElementById("randomSong").innerHTML += "<img src='Random.png' alt='Random Song'>" 
+        }else if (window.location.search.length > 0){
+            let url = window.location.href
+            let urlParams = new URLSearchParams(url)
+             let newcode = urlParams.get("code")
+             getToken(newcode)
+        }
+}
+     
+    function authorizationRequest() {
+        let url = "https://accounts.spotify.com/authorize";
+        //client_id = document.getElementById("client_id").value; 
+        let client_id = "45b3270af0514c4097608acd28fd37d4"
+        //client_secret = document.getElementById("client_secret").value;
+        let client_secret = "7f7976df1afb488588764e6162e97554"
+        localStorage.setItem("client_id", client_id);
+        localStorage.setItem("client_secret", client_secret);
+        url = url + "?client_id=" + client_id + "&response_type=code&redirect_uri=" + redirect  + "&scope=user-read-private user-read-email user-modify-playback-state user-read-playback-position user-library-read streaming user-read-playback-state user-read-recently-played playlist-read-private";
+        url = url +"&show_dialog=true";
+        window.location.href = url;
+
+        // add html to display success message under the auth id 
+        
+    }
+
+    function getToken(newcode){
+        let client_id = "45b3270af0514c4097608acd28fd37d4"
+        let client_secret = "7f7976df1afb488588764e6162e97554"
+        let url_token = "https://accounts.spotify.com/api/token"
+            fetch(url_token,{
+                method: "POST",
+                headers: {
+                    'Authorization': 'Basic ' + btoa(client_id + ':' + client_secret),
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },body:
+                    'grant_type=client_credentials&code=' + newcode + '&redirect_uri=' + redirect
+                    
+                
+            }).then((response) => {
+                return response.json()
+            }).then((data) => {
+                console.log(data)
+                localStorage.setItem("access_token", data.access_token)
+                localStorage.setItem("refresh_token", data.refresh_token)
+                pageStatus()
+                //return data.access_token
+
+            });
+            
+    }
+        
+    function playlistRequest(number){
+        let url = null
+
+        if(localStorage.getItem("access_token") == null){
+            alert("Please authorize the app first")
+            
+        }
+
+        if(number == 1){
+            url = "https://api.spotify.com/v1/playlists/4Ubi5jpk6sud8tluFqDjxP";
+        }
+        else if(number == 2){
+            url = "https://api.spotify.com/v1/playlists/37i9dQZF1DXbm6HfkbMtFZ";
+        }
+        else{
+            url = "https://api.spotify.com/v1/playlists/1x0bE4Gh2POCIMIpzP4dot";
+        }
+
+        //let url = "https://api.spotify.com/v1/playlists/4Ubi5jpk6sud8tluFqDjxP/tracks";
+        let access_token = localStorage.getItem("access_token");
+
+        const songfetcher = async () => {
+            const response = await fetch(url,{
+            method: "GET",
+            headers : { 'Authorization' : 'Bearer ' + access_token}
+        })
+        const data = await response.json()
+        console.log(data)
+        let songList = document.getElementById("songList")
+        songList.innerHTML = ""
+        //let playlistDescription = document.getElementById("PlaylistDescription")
+        //playlistDescription.innerHTML = ""
+        play = document.createElement("div")
+        play.style = "color: teal;font-size: 18px; border: 2px solid lightblue; border-radius: 5px; padding: 10px; margin: 10px;"
+        play.innerHTML = "Playlist Description : " + data.description + "<br/>"
+        play.innerHTML += "This set of songs is presently enjoyed by " + data.followers.total + " people! <br/>"
+        play.innerHTML += "Playlist Owner : " + data.owner.display_name + "<br/>"
+        //playlistDescription.appendChild(play)
+        songList.appendChild(play)
+
+        for (let i = 0; i < 100; i++){
+            let song = data.tracks.items[i].track.name
+
+            let artist = data.tracks.items[i].track.artists[0].name
+            //console.log(song + " by " + artist)
+             
+
+            //document.getElementById("songList").innerHTML += "<img src=\"" + data.tracks.items[i].track.album.images[0].url + "\">" + song + " by " + artist + "<br/>"
+            let songchild = document.createElement("div") 
+            songchild.style = "color:#1DB954"
+            // add album art and song name and artist to the songchild text content
+            //add song description to the songchild text content
+            songchild.innerHTML += i+1 + "   " + "<img src=\"" + data.tracks.items[i].track.album.images[0].url + "\">" + "  " + song + " by " + artist  +"<br/>" + "<br/>" 
+            songList.appendChild(songchild)
+
+            
+        }
+        }
+        songfetcher()     
+    }
+
+    function randomSongGenerator(){
+
+        if(localStorage.getItem("access_token") == null){
+            alert("Please authorize the app first")
+            
+        }
+        //let url = "https://api.spotify.com/v1/album/2Oiewqx3PStcJxN0FVojJI/play"
+        let url = "https://api.spotify.com/v1/playlists/37i9dQZF1DXcB9sN6ZkZ58"
+        let access_token = localStorage.getItem("access_token");
+        const randomsongfetcher = async () => {
+            const response = await fetch(url,{
+            method: "GET",
+            headers : { 'Authorization' : 'Bearer ' + access_token}
+        })
+        const data = await response.json()
+        console.log(data)
+        // pick a random number between 1 and 98
+
+        let random = Math.floor(Math.random() * 98) + 1
+        let songname = data.tracks.items[random].track.name
+        document.getElementById("randomsonginfo").innerHTML = ""
+        document.getElementById("randomsonginfo").innerHTML += "We think you'll love a piece of this!" + "<br/>" + "<br/>"
+        document.getElementById("randomsonginfo").innerHTML += "<img src=\"" + data.tracks.items[random].track.album.images[0].url + "\">" + "  " + songname + " by " + data.tracks.items[random].track.artists[0].name  +"<br/>" + "<br/>"
+        songpreview = data.tracks.items[random].track.preview_url
+
+        // create a button to make window.location.href = songpreview upon clicking
+
+        player = document.createElement("button").name="Try it!".
+        document.getElementById("randomsonginfo").append(player)
+        
+        
+        
+
+
+        console.log(songname)
+        console.log(songpreview)
+        // play the song selected on spotify
+
+        //window.location.href = songpreview;
+        }
+        randomsongfetcher()
+    }
+
+    function playRandomSong(){
+        if(songpreview != null){
+            window.location.href = songpreview;
+        }else{
+            alert("Please generate a random food song first")
+        }
+    }
+    
+    // function playRandomSong(){
+    //     let song = randomSongGenerator()
+    //     let access_token = localStorage.getItem("access_token");
+
+    //     const randomsongplayer = async () => {
+    //         const response = await fetch("https://api.spotify.com/v1/me/player/play",{
+    //         method: "PUT",
+    //         headers : { 'Authorization' : 'Bearer ' + access_token},
+    //         body: JSON.stringify({
+    //             "uris": [
+                    
+    //             ]
+    //         })
+    //     })
+    //     const data = await response.json()
+    //     console.log(data)
+    //     }
+    //     randomsongplayer()
+    // }
+
+
+    
+    
+    
+    
+
+
+
+        
+        
+
+    
+    
+
+
+    
+
+
+
+
+        
+
+
+</script>
+</html>
